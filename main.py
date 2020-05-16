@@ -27,14 +27,13 @@ args = parser.parse_args()
 if args.selection == "out" and args.path is None:
     parser.error("--path is required if --mode is \"out\".")
 
-beg = { "x": args.begin_x, "y": args.begin_y, "z": args.begin_z }
-end = { "x": args.end_x,   "y": args.end_y,   "z": args.end_z }
+coordenates = [ { "x": args.begin_x, "y": args.begin_y, "z": args.begin_z },
+                { "x": args.end_x,   "y": args.end_y,   "z": args.end_z } ]
 
-# Ensuring that the coordinates of beg[] are less than end[]
+# Ensuring that the axes are ordered from smallest to largest.
 for axis in ("x", "y", "z"):
-    if beg[axis] > end[axis]:
-        temp = beg[axis]
-        beg[axis] = end[axis]
-        end[axis] = temp
-
+    if coordenates[0][axis] > coordenates[1][axis]:
+        temp = coordenates[0][axis]
+        coordenates[0][axis] = coordenates[1][axis]
+        coordenates[1][axis] = temp
 
