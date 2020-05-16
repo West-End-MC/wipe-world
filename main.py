@@ -1,4 +1,6 @@
 import argparse
+import re
+from glob import glob
 
 parser = argparse.ArgumentParser(description='Browse mca files using block/chunk coordenates.')
 parser.add_argument("--selection", "-s", choices=["in", "out"], default="in", 
@@ -26,6 +28,12 @@ args = parser.parse_args()
 
 if args.selection == "out" and args.path is None:
     parser.error("--path is required if --mode is \"out\".")
+
+mca_files = []
+if args.path:
+    mca_files = glob("%s/*.mca"%(args.path))
+    for index in range(len(mca_files)):   
+        mca_files[index] = re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_files[index])[0]
 
 coordenates = [ { "x": args.begin_x, "y": args.begin_y, "z": args.begin_z },
                 { "x": args.end_x,   "y": args.end_y,   "z": args.end_z } ]
@@ -84,10 +92,18 @@ Chunk coordenates: "%s 0 %s" to "%s 0 %s"
    max_chunk["x"], max_chunk["z"]))
 
 if args.path:
-    print("Showing .mca files from \"%s\" that are within the indicated coordinates:\n"
-          %(args.path))
+    print("Showing .mca files from \"%s\" that are ->%s<- the indicated coordinates:\n"
+          %(args.path, "WITHIN" if args.selection == "in" else "OUTSIDE"))
+    if args.selection == "in":
+        temp_mca_list = mca_list
+        mca_list = []
+        for mca_file in mca_files:
+            if mca_file in temp_mca_list: mca_list += [mca_file]
+    else:
+        for mca_file in mca_files:
+            if mca_file in mca_list: mca_list.remove(mca_file)
 else:
-    print("Showing all the possible .mca files that can be generated within the indicated coordinates:\n")
+    print("Showing all the possible .mca files that can be generated ->WITHIN< the indicated coordinates:\n")
 
 mca_text = ""
 for mca in mca_list:
