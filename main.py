@@ -61,3 +61,35 @@ for index in range(len(coordenates)):
 for axis in ("x", "y", "z"):
     min_chunk[axis] =  coordenates[0][axis] << 5
     max_chunk[axis] = (coordenates[1][axis] + 1 << 5) - 1
+
+mca_list = []
+for x in range(coordenates[0]["x"],coordenates[1]["x"] + 1):
+    for z in range(coordenates[0]["z"],coordenates[1]["z"] + 1):
+        mca_list += ["r.%s.%s.mca"%(x,z)]
+
+print(
+"""
+----------------------
+Number of possible .mca files: %s
+List of files based in a real folder?: %s
+==
+Block coordenates: "%s %s %s" to "%s %s %s"
+Chunk coordenates: "%s 0 %s" to "%s 0 %s"
+==
+----------------------
+"""%(len(mca_list), "Yes" if args.path else "No",
+   min_block["x"], min_block["y"], min_block["z"],
+   max_block["x"], max_block["y"], max_block["z"],
+   min_chunk["x"], min_chunk["z"],
+   max_chunk["x"], max_chunk["z"]))
+
+if args.path:
+    print("Showing .mca files from \"%s\" that are within the indicated coordinates:\n"
+          %(args.path))
+else:
+    print("Showing all the possible .mca files that can be generated within the indicated coordinates:\n")
+
+mca_text = ""
+for mca in mca_list:
+    mca_text += "'%s' "%(mca)
+print("%s\n"%(mca_text))
