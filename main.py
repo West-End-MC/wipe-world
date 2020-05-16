@@ -1,4 +1,5 @@
 import argparse
+
 parser = argparse.ArgumentParser(description='Browse mca files using block/chunk coordenates.')
 parser.add_argument("--selection", "-s", choices=["in", "out"], default="in", 
                     help="""
@@ -14,17 +15,26 @@ parser.add_argument("--path", "-p", type=str,
                          """)
 parser.add_argument("--mode", "-m", type=str, choices=["blocks", "chunks"], default="blocks")
 
-parser.add_argument("begin-x", type=int)
-parser.add_argument("begin-y", type=int)
-parser.add_argument("begin-z", type=int)
-parser.add_argument("end-x",   type=int)
-parser.add_argument("end-y",   type=int)
-parser.add_argument("end-z",   type=int)
+parser.add_argument("begin_x", type=int)
+parser.add_argument("begin_y", type=int)
+parser.add_argument("begin_z", type=int)
+parser.add_argument("end_x",   type=int)
+parser.add_argument("end_y",   type=int)
+parser.add_argument("end_z",   type=int)
 
 args = parser.parse_args()
 
 if args.selection == "out" and args.path is None:
     parser.error("--path is required if --mode is \"out\".")
 
-beg = { x: args.begin_x, y:args.begin_y, args.begin_z }
-end = { x: args.end_x, y:args.end_y, args.end_z }
+beg = { "x": args.begin_x, "y": args.begin_y, "z": args.begin_z }
+end = { "x": args.end_x,   "y": args.end_y,   "z": args.end_z }
+
+# Ensuring that the coordinates of beg[] are less than end[]
+for axis in ("x", "y", "z"):
+    if beg[axis] > end[axis]:
+        temp = beg[axis]
+        beg[axis] = end[axis]
+        end[axis] = temp
+
+
