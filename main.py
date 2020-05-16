@@ -77,14 +77,15 @@ for x in range(coordenates[0]["x"],coordenates[1]["x"] + 1):
 
 print(
 """
-----------------------
+------------------------------------
 Number of possible .mca files: %s
 List of files based in a real folder?: %s
-==
+
+== SELECTION DETAILS ==
 Block coordenates: "%s %s %s" to "%s %s %s"
 Chunk coordenates: "%s 0 %s" to "%s 0 %s"
-==
-----------------------
+=======================
+------------------------------------
 """%(len(mca_list), "Yes" if args.path else "No",
    min_block["x"], min_block["y"], min_block["z"],
    max_block["x"], max_block["y"], max_block["z"],
@@ -100,8 +101,9 @@ if args.path:
         for mca_file in mca_files:
             if mca_file in temp_mca_list: mca_list += [mca_file]
     else:
-        for mca_file in mca_files:
-            if mca_file in mca_list: mca_list.remove(mca_file)
+        for mca in mca_list:
+            if mca in mca_files: mca_files.remove(mca)
+        mca_list = mca_files
 else:
     print("Showing all the possible .mca files that can be generated ->WITHIN< the indicated coordinates:\n")
 
