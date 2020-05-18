@@ -7,6 +7,9 @@ class Coordinate:
     def toList(self):
         return [ self.x, self.y, self.z ]
 
+    def toTuple(self):
+        return ( self.x, self.y, self.z )
+
     def toDict(self):
         return { "x":self.x, "y":self.y, "z":self.z }
 
