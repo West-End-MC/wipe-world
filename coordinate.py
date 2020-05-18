@@ -1,8 +1,11 @@
 class Coordinate:
-    def __init__(self, x:int=0, y:int=0, z:int=0):
-        self.x = x
-        self.y = y
-        self.z = z
+    def __init__(self, x:int=0, y:int=0, z:int=0, xyz_list:list=None):
+        if xyz_list is not None:
+            self.x, self.y, self.z = xyz_list
+        else:
+            self.x = x
+            self.y = y
+            self.z = z
     
     def toList(self):
         return [ self.x, self.y, self.z ]
@@ -30,10 +33,10 @@ class Coordinate:
      return "%s %s %s"%(self.x, self.y, self.z)
 
     @staticmethod
-    def getOrderatedList(first:"Coordinate", second:"Coordinate"):
+    def getOrderedList(first:"Coordinate", second:"Coordinate"):
         Coordinates = [Coordinate(), Coordinate()]
         for axis in first:
-            if axis["value"] > getattr(second, axis["axis"]):
+            if axis["value"] < getattr(second, axis["axis"]):
                 setattr(Coordinates[0], axis["axis"], axis["value"])
                 setattr(Coordinates[1], axis["axis"], getattr(second, axis["axis"]))
             else:
