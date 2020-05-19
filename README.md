@@ -8,7 +8,7 @@ $ python3 main.py -p '/example/minecraft/world/region' -s 'in' -1300 0 1200 1500
 
 ------------------------------------
 Number of possible .mca files: 6
-List of files based in a real folder?: No
+List of files based in a real folder?: Yes
 
 == SELECTION DETAILS ==
 Block coordenates: "-1536 0 -1536 to 1535 511 1535"
