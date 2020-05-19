@@ -4,7 +4,7 @@ class Selection:
         self.start, self.end = Coordinate.getOrderedList(start, end)
 
     def __str__(self):
-     return "%s to %s"%(self.start, self.end)
+        return "%s to %s"%(self.start, self.end)
 
     def toList(self):
         return [list(range(getattr(self.start, axis), getattr(self.end, axis) + 1)) for axis in ("x", "y", "z")]
@@ -32,3 +32,35 @@ class Selection:
 
 
 
+class BlocksSelection(Selection):
+    def toChunksSelection(self):
+        coordinates = []
+        for coordinate in [self.start, self.end]:
+            coordinates += [Coordinate(xyz_list=(list(map(lambda c : c >> 4, coordinate.toTuple()))))]
+        return ChunksSelection(start=coordinates[0], end=coordinates[1])
+
+    def toRegionsSelection(self):
+        return self.toChunksSelection().toRegionsSelection()
+
+class ChunksSelection(Selection):
+    def toBlocksSelection(self):
+        coordinates = []
+        coordinates += [Coordinate(xyz_list=(list(map(lambda c : c << 4, self.start.toTuple()))))]
+        coordinates += [Coordinate(xyz_list=(list(map(lambda c : (c + 1 << 4) - 1, self.end.toTuple()))))]
+        return BlocksSelection(start=coordinates[0], end=coordinates[1])
+    
+    def toRegionsSelection(self):
+        coordinates = []
+        for coordinate in [self.start, self.end]:
+            coordinates += [Coordinate(xyz_list=(list(map(lambda c : c >> 5, coordinate.toTuple()))))]
+        return RegionsSelection(start=coordinates[0], end=coordinates[1])
+
+class RegionsSelection(Selection):
+    def toBlocksSelection(self):
+        self.toChunksSelection().toBlocksSelection()
+
+    def toChunksSelection(self):
+        coordinates = []
+        coordinates += [Coordinate(xyz_list=(list(map(lambda c : c << 5, self.start.toTuple()))))]
+        coordinates += [Coordinate(xyz_list=(list(map(lambda c : (c + 1 << 5) - 1, self.end.toTuple()))))]
+        return ChunksSelection(start=coordinates[0], end=coordinates[1])
