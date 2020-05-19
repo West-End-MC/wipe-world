@@ -17,17 +17,25 @@ class Selection:
 
     def __next__(self):
         coordinate = Coordinate(self.__current_x, self.__current_y, self.__current_z)
-        if self.__current_x > self.end.x:
+        if self.__current_x == self.end.x and self.__current_y == self.end.y and self.__current_z == self.end.z:
+            self.__current_x, self.__current_y, self.__current_z = None, None, None
+            return coordinate
+        if self.__current_x is None and self.__current_y is None and self.__current_z is None:
             raise StopIteration
-        elif self.__current_y == self.end.y:
-            self.__current_x += 1
-            self.__current_y = self.start.y
-        elif self.__current_z == self.end.z:
-            self.__current_y += 1
-            self.__current_z = self.start.z
-        else:
+
+        if (self.__current_z + 1 <= self.end.z):
             self.__current_z += 1
-        
+        else:
+            self.__current_z = self.start.z
+            if self.__current_y + 1 <= self.end.y:
+                self.__current_y += 1
+            else:
+                self.__current_y = self.start.y
+                if self.__current_x + 1 <= self.end.x:
+                    self.__current_x += 1
+                else:
+                    self.__current_x = self.start.x
+
         return coordinate
 
 
