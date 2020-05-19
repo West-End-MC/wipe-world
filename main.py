@@ -2,7 +2,7 @@ import argparse
 import re
 from glob import glob
 from coordinate import Coordinate
-from classes import BlocksSelection, ChunksSelection
+from selection import BlocksSelection, ChunksSelection
 
 parser = argparse.ArgumentParser(description='Browse mca files using block/chunk coordenates.')
 parser.add_argument("--selection", "-s", choices=["in", "out"], default="in", 
