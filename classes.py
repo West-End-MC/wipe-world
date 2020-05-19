@@ -57,7 +57,7 @@ class ChunksSelection(Selection):
 
 class RegionsSelection(Selection):
     def toBlocksSelection(self):
-        self.toChunksSelection().toBlocksSelection()
+        return self.toChunksSelection().toBlocksSelection()
 
     def toChunksSelection(self):
         coordinates = []
