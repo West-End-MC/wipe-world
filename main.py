@@ -24,6 +24,7 @@ args = parser.parse_args()
 # Функция обработки координат
 def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode, residence_name, founder_name):
     mca_files = []
+    print_output(mca_list, path, selection, args.selection, residence_name, founder_name)
     if path:
         mca_files = glob(f"{path}/*.mca")
         mca_files = [re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_file)[0] for mca_file in mca_files if re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_file)]
@@ -58,11 +59,9 @@ Chunk coordinates: "{selection.toChunksSelection()}"
 # Обработка координат из файла
 if args.coords_file:
     residences = read_residences(args.coords_file)
-    for residence_id, residence_info in residences.items():
+    for residence_name, residence_info in residences.items():
         area_coords = residence_info['Areas']['main'].split(':')
-        # Добавляем логику для извлечения имени резиденции и основателя
-        residence_name = residence_id  # Или как вы получаете название резиденции
-        founder_name = residence_info.get('OwnerLastKnownName', 'Unknown')  # Предполагаем, что имя основателя хранится так
+        founder_name = residence_info.get('OwnerLastKnownName', 'Unknown')
         process_coordinates(*map(int, area_coords), args.path, args.mode, residence_name, founder_name)
     sys.exit()
 
