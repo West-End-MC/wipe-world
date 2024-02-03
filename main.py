@@ -6,6 +6,31 @@ from selection import BlocksSelection, ChunksSelection
 import yaml
 import sys
 
+parser = argparse.ArgumentParser(description='Browse mca files using block/chunk coordenates.')
+parser.add_argument("--selection", "-s", choices=["in", "out"], default="in", 
+                    help="""
+                         Defines selection mode (default: "%(default)s")
+                         in =>  Will find all the mca files that are within the coordinate range.
+                         out => will find all the mca files that are outside the coordinate range.
+                         """)
+parser.add_argument("--path", "-p", type=str, 
+                    help="""
+                         Required if "--mode" is "out".
+                         If defined, it will show only the mca files that are inside the folder.
+                         If not defined, it will show all possible mca files.
+                         """)
+parser.add_argument("--mode", "-m", type=str, choices=["blocks", "chunks"], default="blocks")
+parser.add_argument("--coords-file", "-c", type=str, help="Path to the file with coordinates")
+
+parser.add_argument("--begin_x", type=int, help="Beginning X coordinate")
+parser.add_argument("--begin_y", type=int, help="Beginning Y coordinate")
+parser.add_argument("--begin_z", type=int, help="Beginning Z coordinate")
+parser.add_argument("--end_x", type=int, help="Ending X coordinate")
+parser.add_argument("--end_y", type=int, help="Ending Y coordinate")
+parser.add_argument("--end_z", type=int, help="Ending Z coordinate")
+
+args = parser.parse_args()
+
 def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
     # Вы можете добавить здесь логику для определения selection и работы с mca_files
     # Пока что просто покажем, как исправить ошибку форматирования
@@ -61,31 +86,6 @@ def read_residences(file_path):
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
     return data.get('Residences', {})
-
-parser = argparse.ArgumentParser(description='Browse mca files using block/chunk coordenates.')
-parser.add_argument("--selection", "-s", choices=["in", "out"], default="in", 
-                    help="""
-                         Defines selection mode (default: "%(default)s")
-                         in =>  Will find all the mca files that are within the coordinate range.
-                         out => will find all the mca files that are outside the coordinate range.
-                         """)
-parser.add_argument("--path", "-p", type=str, 
-                    help="""
-                         Required if "--mode" is "out".
-                         If defined, it will show only the mca files that are inside the folder.
-                         If not defined, it will show all possible mca files.
-                         """)
-parser.add_argument("--mode", "-m", type=str, choices=["blocks", "chunks"], default="blocks")
-parser.add_argument("--coords-file", "-c", type=str, help="Path to the file with coordinates")
-
-parser.add_argument("--begin_x", type=int, help="Beginning X coordinate")
-parser.add_argument("--begin_y", type=int, help="Beginning Y coordinate")
-parser.add_argument("--begin_z", type=int, help="Beginning Z coordinate")
-parser.add_argument("--end_x", type=int, help="Ending X coordinate")
-parser.add_argument("--end_y", type=int, help="Ending Y coordinate")
-parser.add_argument("--end_z", type=int, help="Ending Z coordinate")
-
-args = parser.parse_args()
 
 if not args.coords_file and not (args.begin_x is not None and args.begin_y is not None and args.begin_z is not None and args.end_x is not None and args.end_y is not None and args.end_z is not None):
     parser.error("Either --coords-file must be provided or all coordinate arguments (--begin_x, --begin_y, --begin_z, --end_x, --end_y, --end_z) must be specified.")
