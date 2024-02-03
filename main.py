@@ -35,15 +35,27 @@ Block coordenates: "{selection.toBlocksSelection()}"
 Chunk coordenates: "{selection.toChunksSelection()}"
 =======================
 ------------------------------------
-""")
+"""%(len(mca_list), "Yes" if args.path else "No", selection.toBlocksSelection(), selection.toChunksSelection()))
 
-    # Логика вывода файлов, если path задан
-    if path:
-        print(f"Showing .mca files from \"{path}\" that are {'WITHIN' if args.selection == 'in' else 'OUTSIDE'} the indicated coordinates:\n")
-        filtered_mca_list = [mca for mca in mca_files if mca in mca_list]
-        for mca in filtered_mca_list:
-            print(f"'{mca}' ", end='')
-        print("\n")
+if args.path:
+    print("Showing .mca files from \"%s\" that are ->%s<- the indicated coordinates:\n"
+          %(args.path, "WITHIN" if args.selection == "in" else "OUTSIDE"))
+    if args.selection == "in":
+        temp_mca_list = mca_list
+        mca_list = []
+        for mca_file in mca_files:
+            if mca_file in temp_mca_list: mca_list += [mca_file]
+    else:
+        for mca in mca_list:
+            if mca in mca_files: mca_files.remove(mca)
+        mca_list = mca_files
+else:
+    print("Showing all the possible .mca files that can be generated ->WITHIN< the indicated coordinates:\n")
+
+mca_text = ""
+for mca in mca_list:
+    mca_text += "'%s' "%(mca)
+print("%s\n"%(mca_text))
 
 def read_residences(file_path):
     with open(file_path, 'r') as file:
