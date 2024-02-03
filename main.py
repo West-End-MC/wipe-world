@@ -60,7 +60,7 @@ if args.coords_file:
     residences = read_residences(args.coords_file)
     for residence_name, residence_info in residences.items():
         area_coords = residence_info['Areas']['main'].split(':')
-        founder_name = residence_info.get('OwnerLastKnownName', 'Unknown')
+        founder_name = residence_info['Permissions']['OwnerLastKnownName']
         process_coordinates(*map(int, area_coords), args.path, args.mode, residence_name, founder_name)
     sys.exit()
 
