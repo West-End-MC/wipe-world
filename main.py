@@ -23,8 +23,8 @@ args = parser.parse_args()
 
 # Функция обработки координат
 def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode, residence_name, founder_name):
-    mca_files = []
     print_output(mca_list, path, selection, args.selection, residence_name, founder_name)
+    mca_files = []
     if path:
         mca_files = glob(f"{path}/*.mca")
         mca_files = [re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_file)[0] for mca_file in mca_files if re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_file)]
