@@ -13,25 +13,36 @@ def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mo
         for index in range(len(mca_files)):
             mca_files[index] = re.search(r"r\.-?\d+\.-?\d+\.mca", mca_files[index])[0]
 
-    if mode == "blocks":
-        selection = BlocksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
-    else:
-        selection = ChunksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
-    selection = selection.toRegionsSelection()
+if args.selection == "out" and args.path is None:
+    parser.error("--path is required if --mode is \"out\".")
 
-    mca_list = [f"r.{region.x}.{region.z}.mca" for region in selection]
+mca_files = []
+if args.path:
+    mca_files = glob("%s/*.mca"%(args.path))
+    for index in range(len(mca_files)):   
+        mca_files[index] = re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_files[index])[0]
 
-    print("""
+selection = None
+if args.mode == "blocks":
+    selection = BlocksSelection(Coordinate(args.begin_x,args.begin_y,args.begin_z), Coordinate(args.end_x,args.end_y,args.end_z))
+else:
+    selection = ChunksSelection(Coordinate(args.begin_x,args.begin_y,args.begin_z), Coordinate(args.end_x,args.end_y,args.end_z))
+selection = selection.toRegionsSelection()
+
+mca_list = ["r.%s.%s.mca"%(region.x, region.z) for region in selection]
+print(
+"""
 ------------------------------------
-Number of possible .mca files: {len(mca_list)}
-List of files based in a real folder?: {"Yes" if path else "No"}
+Number of possible .mca files: %s
+List of files based in a real folder?: %s
 
 == SELECTION DETAILS ==
-Block coordenates: "{selection.toBlocksSelection()}"
-Chunk coordenates: "{selection.toChunksSelection()}"
+Block coordenates: "%s"
+Chunk coordenates: "%s"
 =======================
 ------------------------------------
 """%(len(mca_list), "Yes" if args.path else "No", selection.toBlocksSelection(), selection.toChunksSelection()))
+
 def read_residences(file_path):
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
