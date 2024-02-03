@@ -7,41 +7,38 @@ import yaml
 import sys
 
 def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
-    mca_files = []
-    if path:
-        mca_files = glob(f"{path}/*.mca")
-        for index in range(len(mca_files)):
-            mca_files[index] = re.search(r"r\.-?\d+\.-?\d+\.mca", mca_files[index])[0]
+    # Вы можете добавить здесь логику для определения selection и работы с mca_files
+    # Пока что просто покажем, как исправить ошибку форматирования
 
-if args.selection == "out" and args.path is None:
-    parser.error("--path is required if --mode is \"out\".")
+    selection = None
+    if mode == "blocks":
+        selection = BlocksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
+    else:
+        selection = ChunksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
+    selection = selection.toRegionsSelection()
 
-mca_files = []
-if args.path:
-    mca_files = glob("%s/*.mca"%(args.path))
-    for index in range(len(mca_files)):   
-        mca_files[index] = re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_files[index])[0]
+    mca_list = [f"r.{region.x}.{region.z}.mca" for region in selection]
 
-selection = None
-if args.mode == "blocks":
-    selection = BlocksSelection(Coordinate(args.begin_x,args.begin_y,args.begin_z), Coordinate(args.end_x,args.end_y,args.end_z))
-else:
-    selection = ChunksSelection(Coordinate(args.begin_x,args.begin_y,args.begin_z), Coordinate(args.end_x,args.end_y,args.end_z))
-selection = selection.toRegionsSelection()
-
-mca_list = ["r.%s.%s.mca"%(region.x, region.z) for region in selection]
-print(
-"""
+    # Правильное использование форматирования строки
+    print(f"""
 ------------------------------------
-Number of possible .mca files: %s
-List of files based in a real folder?: %s
+Number of possible .mca files: {len(mca_list)}
+List of files based in a real folder?: {"Yes" if path else "No"}
 
 == SELECTION DETAILS ==
-Block coordenates: "%s"
-Chunk coordenates: "%s"
+Block coordenates: "{selection.toBlocksSelection()}"
+Chunk coordenates: "{selection.toChunksSelection()}"
 =======================
 ------------------------------------
-"""%(len(mca_list), "Yes" if args.path else "No", selection.toBlocksSelection(), selection.toChunksSelection()))
+""")
+
+    # Логика вывода файлов, если path задан
+    if path:
+        print(f"Showing .mca files from \"{path}\" that are {'WITHIN' if args.selection == 'in' else 'OUTSIDE'} the indicated coordinates:\n")
+        filtered_mca_list = [mca for mca in mca_files if mca in mca_list]
+        for mca in filtered_mca_list:
+            print(f"'{mca}' ", end='')
+        print("\n")
 
 def read_residences(file_path):
     with open(file_path, 'r') as file:
