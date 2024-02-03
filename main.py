@@ -3,6 +3,12 @@ import re
 from glob import glob
 from coordinate import Coordinate
 from selection import BlocksSelection, ChunksSelection
+import yaml
+
+def read_residences(file_path):
+    with open(file_path, 'r') as file:
+        data = yaml.safe_load(file)
+    return data.get('Residences', {})
 
 parser = argparse.ArgumentParser(description='Browse mca files using block/chunk coordenates.')
 parser.add_argument("--selection", "-s", choices=["in", "out"], default="in", 
@@ -18,6 +24,7 @@ parser.add_argument("--path", "-p", type=str,
                          If not defined, it will show all possible mca files.
                          """)
 parser.add_argument("--mode", "-m", type=str, choices=["blocks", "chunks"], default="blocks")
+parser.add_argument("--coords-file", "-c", type=str, help="Path to the file with coordinates")
 
 parser.add_argument("begin_x", type=int)
 parser.add_argument("begin_y", type=int)
@@ -27,6 +34,13 @@ parser.add_argument("end_y",   type=int)
 parser.add_argument("end_z",   type=int)
 
 args = parser.parse_args()
+
+if args.coords_file:
+    residences = read_residences(args.coords_file)
+    for residence_id, residence_info in residences.items():
+        area_coords = residence_info['Areas']['main'].split(':')
+        begin_x, begin_y, begin_z, end_x, end_y, end_z = map(int, area_coords)
+        process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, args.path, args.mode)
 
 if args.selection == "out" and args.path is None:
     parser.error("--path is required if --mode is \"out\".")
@@ -77,3 +91,30 @@ mca_text = ""
 for mca in mca_list:
     mca_text += "'%s' "%(mca)
 print("%s\n"%(mca_text))
+
+def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
+    mca_files = []
+    if path:
+        mca_files = glob(f"{path}/*.mca")
+        for index in range(len(mca_files)):
+            mca_files[index] = re.search(r"r\.-?\d+\.-?\d+\.mca", mca_files[index])[0]
+
+    if mode == "blocks":
+        selection = BlocksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
+    else:
+        selection = ChunksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
+    selection = selection.toRegionsSelection()
+
+    mca_list = [f"r.{region.x}.{region.z}.mca" for region in selection]
+
+    print(f"""
+------------------------------------
+Number of possible .mca files: {len(mca_list)}
+List of files based in a real folder?: {"Yes" if path else "No"}
+
+== SELECTION DETAILS ==
+Block coordenates: "{selection.toBlocksSelection()}"
+Chunk coordenates: "{selection.toChunksSelection()}"
+=======================
+------------------------------------
+""")
