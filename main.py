@@ -21,7 +21,7 @@ def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mo
 
     mca_list = [f"r.{region.x}.{region.z}.mca" for region in selection]
 
-    print(f"""
+    print("""
 ------------------------------------
 Number of possible .mca files: {len(mca_list)}
 List of files based in a real folder?: {"Yes" if path else "No"}
