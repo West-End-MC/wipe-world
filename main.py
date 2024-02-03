@@ -9,6 +9,11 @@ import sys
 def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
     # Вы можете добавить здесь логику для определения selection и работы с mca_files
     # Пока что просто покажем, как исправить ошибку форматирования
+    mca_files = []
+    if args.path:
+        mca_files = glob("%s/*.mca"%(args.path))
+        for index in range(len(mca_files)):   
+            mca_files[index] = re.search("r\\.-?\\d+\\.-?\\d+\\.mca", mca_files[index])[0]
 
     selection = None
     if mode == "blocks":
