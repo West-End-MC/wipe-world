@@ -23,7 +23,6 @@ args = parser.parse_args()
 
 # Функция обработки координат
 def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode, residence_name, founder_name):
-    print_output(mca_list, path, selection, args.selection, residence_name, founder_name)
     mca_files = []
     if path:
         mca_files = glob(f"{path}/*.mca")
@@ -33,7 +32,7 @@ def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mo
     selection = selection.toRegionsSelection()
 
     mca_list = [f"r.{region.x}.{region.z}.mca" for region in selection]
-    print_output(mca_list, path, selection, args.selection)
+    print_output(mca_list, path, selection, args.selection, residence_name, founder_name)
 
 # Функция для вывода результатов
 def print_output(mca_list, path, selection, selection_mode, residence_name, founder_name):
