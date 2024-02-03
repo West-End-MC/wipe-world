@@ -22,7 +22,7 @@ parser.add_argument("--coords-file", "-c", type=str, help="Path to the file with
 args = parser.parse_args()
 
 # Функция обработки координат
-def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
+def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode, residence_name, founder_name):
     mca_files = []
     if path:
         mca_files = glob(f"{path}/*.mca")
@@ -35,9 +35,11 @@ def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mo
     print_output(mca_list, path, selection, args.selection)
 
 # Функция для вывода результатов
-def print_output(mca_list, path, selection, selection_mode):
+def print_output(mca_list, path, selection, selection_mode, residence_name, founder_name):
     print(f"""
 ------------------------------------
+Residence: {residence_name}
+Founder: {founder_name}
 Number of possible .mca files: {len(mca_list)}
 List of files based in a real folder?: {"Yes" if path else "No"}
 
@@ -58,7 +60,10 @@ if args.coords_file:
     residences = read_residences(args.coords_file)
     for residence_id, residence_info in residences.items():
         area_coords = residence_info['Areas']['main'].split(':')
-        process_coordinates(*map(int, area_coords), args.path, args.mode)
+        # Добавляем логику для извлечения имени резиденции и основателя
+        residence_name = residence_id  # Или как вы получаете название резиденции
+        founder_name = residence_info.get('OwnerLastKnownName', 'Unknown')  # Предполагаем, что имя основателя хранится так
+        process_coordinates(*map(int, area_coords), args.path, args.mode, residence_name, founder_name)
     sys.exit()
 
 # Если скрипт не завершился после обработки файла, значит была ошибка в логике или вводе
