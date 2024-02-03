@@ -4,6 +4,8 @@ from glob import glob
 from coordinate import Coordinate
 from selection import BlocksSelection, ChunksSelection
 import yaml
+import sys
+
 def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
     mca_files = []
     if path:
@@ -29,7 +31,7 @@ Block coordenates: "{selection.toBlocksSelection()}"
 Chunk coordenates: "{selection.toChunksSelection()}"
 =======================
 ------------------------------------
-""")
+"""%(len(mca_list), "Yes" if args.path else "No", selection.toBlocksSelection(), selection.toChunksSelection()))
 def read_residences(file_path):
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
@@ -69,6 +71,7 @@ if args.coords_file:
         area_coords = residence_info['Areas']['main'].split(':')
         begin_x, begin_y, begin_z, end_x, end_y, end_z = map(int, area_coords)
         process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, args.path, args.mode)
+    sys.exit()
 else:
     # Проверка, что все координаты были предоставлены
     if None in [args.begin_x, args.begin_y, args.begin_z, args.end_x, args.end_y, args.end_z]:
