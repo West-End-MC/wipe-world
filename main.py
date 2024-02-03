@@ -4,7 +4,32 @@ from glob import glob
 from coordinate import Coordinate
 from selection import BlocksSelection, ChunksSelection
 import yaml
+def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
+    mca_files = []
+    if path:
+        mca_files = glob(f"{path}/*.mca")
+        for index in range(len(mca_files)):
+            mca_files[index] = re.search(r"r\.-?\d+\.-?\d+\.mca", mca_files[index])[0]
 
+    if mode == "blocks":
+        selection = BlocksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
+    else:
+        selection = ChunksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
+    selection = selection.toRegionsSelection()
+
+    mca_list = [f"r.{region.x}.{region.z}.mca" for region in selection]
+
+    print(f"""
+------------------------------------
+Number of possible .mca files: {len(mca_list)}
+List of files based in a real folder?: {"Yes" if path else "No"}
+
+== SELECTION DETAILS ==
+Block coordenates: "{selection.toBlocksSelection()}"
+Chunk coordenates: "{selection.toChunksSelection()}"
+=======================
+------------------------------------
+""")
 def read_residences(file_path):
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
@@ -100,30 +125,3 @@ mca_text = ""
 for mca in mca_list:
     mca_text += "'%s' "%(mca)
 print("%s\n"%(mca_text))
-
-def process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, path, mode):
-    mca_files = []
-    if path:
-        mca_files = glob(f"{path}/*.mca")
-        for index in range(len(mca_files)):
-            mca_files[index] = re.search(r"r\.-?\d+\.-?\d+\.mca", mca_files[index])[0]
-
-    if mode == "blocks":
-        selection = BlocksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
-    else:
-        selection = ChunksSelection(Coordinate(begin_x, begin_y, begin_z), Coordinate(end_x, end_y, end_z))
-    selection = selection.toRegionsSelection()
-
-    mca_list = [f"r.{region.x}.{region.z}.mca" for region in selection]
-
-    print(f"""
-------------------------------------
-Number of possible .mca files: {len(mca_list)}
-List of files based in a real folder?: {"Yes" if path else "No"}
-
-== SELECTION DETAILS ==
-Block coordenates: "{selection.toBlocksSelection()}"
-Chunk coordenates: "{selection.toChunksSelection()}"
-=======================
-------------------------------------
-""")
