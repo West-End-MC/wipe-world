@@ -26,14 +26,17 @@ parser.add_argument("--path", "-p", type=str,
 parser.add_argument("--mode", "-m", type=str, choices=["blocks", "chunks"], default="blocks")
 parser.add_argument("--coords-file", "-c", type=str, help="Path to the file with coordinates")
 
-parser.add_argument("begin_x", type=int)
-parser.add_argument("begin_y", type=int)
-parser.add_argument("begin_z", type=int)
-parser.add_argument("end_x",   type=int)
-parser.add_argument("end_y",   type=int)
-parser.add_argument("end_z",   type=int)
+parser.add_argument("--begin_x", type=int, help="Beginning X coordinate")
+parser.add_argument("--begin_y", type=int, help="Beginning Y coordinate")
+parser.add_argument("--begin_z", type=int, help="Beginning Z coordinate")
+parser.add_argument("--end_x", type=int, help="Ending X coordinate")
+parser.add_argument("--end_y", type=int, help="Ending Y coordinate")
+parser.add_argument("--end_z", type=int, help="Ending Z coordinate")
 
 args = parser.parse_args()
+
+if not args.coords_file and not (args.begin_x is not None and args.begin_y is not None and args.begin_z is not None and args.end_x is not None and args.end_y is not None and args.end_z is not None):
+    parser.error("Either --coords-file must be provided or all coordinate arguments (--begin_x, --begin_y, --begin_z, --end_x, --end_y, --end_z) must be specified.")
 
 if args.coords_file:
     residences = read_residences(args.coords_file)
@@ -41,6 +44,12 @@ if args.coords_file:
         area_coords = residence_info['Areas']['main'].split(':')
         begin_x, begin_y, begin_z, end_x, end_y, end_z = map(int, area_coords)
         process_coordinates(begin_x, begin_y, begin_z, end_x, end_y, end_z, args.path, args.mode)
+else:
+    # Проверка, что все координаты были предоставлены
+    if None in [args.begin_x, args.begin_y, args.begin_z, args.end_x, args.end_y, args.end_z]:
+        parser.error("All coordinate arguments are required if not using --coords-file.")
+    process_coordinates(args.begin_x, args.begin_y, args.begin_z, args.end_x, args.end_y, args.end_z, args.path, args.mode)
+
 
 if args.selection == "out" and args.path is None:
     parser.error("--path is required if --mode is \"out\".")
